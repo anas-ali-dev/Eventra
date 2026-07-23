@@ -1,9 +1,9 @@
 const mongoose = require ('mongoose');
-const categorySchema = mongoose.Schema({
+const categorySchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        minLength: 5
+        minlength: 5
     },
     description: {
     type: String,

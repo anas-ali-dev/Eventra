@@ -3,7 +3,8 @@ import cors from "cors";
 
 import bookingRoutes from "./Routes/booking.routes.js";
 import reviewRoutes from "./Routes/review.routes.js";
-
+import categoryRoutes from "./Routes/category.routes.js";
+import errorMiddleware from "./middleware/error.middleware";
 const app = express();
 
 app.use(cors());
@@ -22,5 +23,9 @@ app.get("/", (req, res) =>
 app.use("/booking", bookingRoutes);
 
 app.use("/review", reviewRoutes);
+
+app.use('/api/categories', categoryRoutes);
+
+app.use(errorMiddleware);
 
 export default app;

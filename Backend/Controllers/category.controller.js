@@ -1,4 +1,4 @@
-const category = require('../models/category.model');
+const Category = require('../models/category.model');
 
 exports.createCategory = (req, res) => {
     const { name, description } = req.body;
