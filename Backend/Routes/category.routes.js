@@ -1,13 +1,25 @@
-const express = require('express');
+import express from "express";
+
+import {
+  createCategory,
+  getCategories,
+  getCategoryById,
+  updateCategory,
+  deleteCategory,
+} from "../Controllers/category.controller.js";
+
+import auth from "../middleware/auth.middleware.js";
+import authorize from "../middleware/role.middleware.js";
+
 const router = express.Router();
 
-const { createCategory, getCategories, getCategory, updateCategory, deleteCategory } = require('../controllers/category.controller');
-const { categoryValidationRules, validate } = require('../validators/category.validator')
+// Public Routes
+router.get("/", getCategories);
+router.get("/:id", getCategoryById);
 
-router.post('/',categoryValidationRules, validate, createCategory);
-router.get('/'. getCategories);
-router.get('/:id', getCategory);
-router.patch('/:id', categoryValidationRules, validate, updateCategory);
-router.delete('/:id', deleteCategory);
+// Admin Routes
+router.post("/", auth, authorize("admin"), createCategory);
+router.put("/:id", auth, authorize("admin"), updateCategory);
+router.delete("/:id", auth, authorize("admin"), deleteCategory);
 
-module.exports = router;
+export default router;
