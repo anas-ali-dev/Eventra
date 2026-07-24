@@ -4,134 +4,136 @@ import Review from "../Models/review.model.js";
 // Create Review
 // ==============================
 
-export const createReview = async (req, res) =>
-{
-    try
-    {
-        const review = await Review.create(req.body);
+export const createReview = async (req, res) => {
+  try {
+    const review = await Review.create(req.body);
 
-        res.status(201).json(
-        {
-            success: true,
-            message: "Review created successfully.",
-            review
-        });
+    return res.status(201).json({
+      success: true,
+      message: "Review created successfully.",
+      data: review,
+    });
+  } catch (error) {
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
     }
-    catch(error)
-    {
-        res.status(500).json(
-        {
-            success: false,
-            message: error.message
-        });
-    }
+
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error.",
+    });
+  }
 };
-
 
 // ==============================
 // Get Reviews
 // ==============================
 
-export const getReviews = async (req, res) =>
-{
-    try
-    {
-        const reviews = await Review.find()
-            .populate("user")
-            .populate("event");
+export const getReviews = async (req, res) => {
+  try {
+    const reviews = await Review.find().populate("user").populate("event");
 
-        res.status(200).json(
-        {
-            success: true,
-            reviews
-        });
-    }
-    catch(error)
-    {
-        res.status(500).json(
-        {
-            success: false,
-            message: error.message
-        });
-    }
+    return res.status(200).json({
+      success: true,
+      count: reviews.length,
+      data: reviews,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error.",
+    });
+  }
 };
-
 
 // ==============================
 // Update Review
 // ==============================
 
-export const updateReview = async (req, res) =>
-{
-    try
-    {
-        const review = await Review.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            {
-                new: true
-            }
-        );
+export const updateReview = async (req, res) => {
+  try {
+    const review = await Review.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
-        if(!review)
-        {
-            return res.status(404).json(
-            {
-                success: false,
-                message: "Review not found."
-            });
-        }
+    if (!review) {
+      return res.status(404).json({
+        success: false,
+        message: "Review not found.",
+      });
+    }
 
-        res.status(200).json(
-        {
-            success: true,
-            review
-        });
+    return res.status(200).json({
+      success: true,
+      message: "Review updated successfully.",
+      data: review,
+    });
+  } catch (error) {
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
     }
-    catch(error)
-    {
-        res.status(500).json(
-        {
-            success: false,
-            message: error.message
-        });
+
+    if (error.name === "CastError") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid review id.",
+      });
     }
+
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error.",
+    });
+  }
 };
-
 
 // ==============================
 // Delete Review
 // ==============================
 
-export const deleteReview = async (req, res) =>
-{
-    try
-    {
-        const review = await Review.findById(req.params.id);
+export const deleteReview = async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
 
-        if(!review)
-        {
-            return res.status(404).json(
-            {
-                success: false,
-                message: "Review not found."
-            });
-        }
-
-        await review.deleteOne();
-
-        res.status(200).json(
-        {
-            success: true,
-            message: "Review deleted successfully."
-        });
+    if (!review) {
+      return res.status(404).json({
+        success: false,
+        message: "Review not found.",
+      });
     }
-    catch(error)
-    {
-        res.status(500).json(
-        {
-            success: false,
-            message: error.message
-        });
+
+    await review.deleteOne();
+
+    return res.status(200).json({
+      success: true,
+      message: "Review deleted successfully.",
+    });
+  } catch (error) {
+    if (error.name === "CastError") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid review id.",
+      });
     }
+
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error.",
+    });
+  }
 };

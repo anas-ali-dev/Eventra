@@ -1,25 +1,30 @@
 import express from "express";
 
-import
-{
-    createBooking,
-    getBookings,
-    getUserBookings,
-    getEventBookings,
-    cancelBooking
-}
-from "../Controllers/booking.controller.js";
+import {
+  createBooking,
+  getBookings,
+  getUserBookings,
+  getEventBookings,
+  cancelBooking,
+} from "../Controllers/booking.controller.js";
+
+import auth from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-router.post("/", createBooking);
+// Create Booking
+router.post("/", auth, createBooking);
 
-router.get("/", getBookings);
+// Get All Bookings (Admin)
+router.get("/", auth, getBookings);
 
-router.get("/user/:id", getUserBookings);
+// Get User Bookings
+router.get("/user/:id", auth, getUserBookings);
 
-router.get("/event/:id", getEventBookings);
+// Get Event Bookings
+router.get("/event/:id", auth, getEventBookings);
 
-router.put("/cancel/:id", cancelBooking);
+// Cancel Booking
+router.put("/cancel/:id", auth, cancelBooking);
 
 export default router;
