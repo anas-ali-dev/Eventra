@@ -1,0 +1,118 @@
+<app-navbar></app-navbar>
+
+<div class="page-shell">
+    <app-page-backdrop></app-page-backdrop>
+
+    <div class="page-body home-page">
+
+        <app-hero></app-hero>
+
+        <div class="stats-strip">
+            @for (stat of stats; track stat.label) {
+                <div class="stat-pill">
+                    <span class="stat-value">{{ stat.value }}</span>
+                    <span class="stat-label">{{ stat.label }}</span>
+                </div>
+            }
+        </div>
+
+        <div class="filter-chips">
+            @for (chip of quickFilters; track chip.label) {
+                <a
+                    class="filter-chip"
+                    routerLink="/events"
+                    [queryParams]="{ category: chip.category }">
+                    <span>{{ chip.icon }}</span>
+                    {{ chip.label }}
+                </a>
+            }
+        </div>
+
+        <div class="home-content">
+
+            <section class="event-section section-highlight">
+
+                <div class="section-header">
+                    <div class="section-title-wrap">
+                        <span class="section-icon">🔥</span>
+                        <div>
+                            <h2>Trending Now</h2>
+                            <p class="section-sub">The hottest tickets in Egypt right now</p>
+                        </div>
+                    </div>
+                    <a class="view-all" routerLink="/events">View All <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <div class="event-slider">
+                    @for (event of trendingEvents; track event.id) {
+                        <app-event-card
+                            variant="squarish"
+                            [id]="event.id"
+                            [title]="event.title"
+                            [category]="event.category"
+                            [date]="formatDate(event.date)"
+                            [location]="event.venue + ', ' + event.city"
+                            [image]="event.image"
+                            [imagePosition]="event.cardImagePosition || event.imagePosition || 'center center'">
+                        </app-event-card>
+                    }
+                </div>
+
+            </section>
+
+            <div class="promo-banner">
+                <div class="promo-glow"></div>
+                <div class="promo-text">
+                    <span class="promo-tag"><i class="bi bi-ticket-perforated"></i> Limited seats</span>
+                    <h3>Don't miss Egypt's biggest live moments</h3>
+                    <p>Concerts, derbies, Netflix nights & festivals — all in one place.</p>
+                </div>
+                <a routerLink="/events" class="promo-cta">
+                    Explore All Events
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+            @for (section of categorySections; track section.category; let odd = $odd) {
+                <section class="event-section" [class.section-alt]="odd">
+
+                    <div class="section-header">
+                        <div class="section-title-wrap">
+                            <span class="section-icon">{{ section.icon }}</span>
+                            <div>
+                                <h2>{{ section.title }}</h2>
+                                <p class="section-sub">{{ section.events.length }} events available</p>
+                            </div>
+                        </div>
+                        <a
+                            class="view-all"
+                            routerLink="/events"
+                            [queryParams]="{ category: section.category }">
+                            See More <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="event-slider">
+                        @for (event of section.events; track event.id) {
+                            <app-event-card
+                                variant="squarish"
+                                [id]="event.id"
+                                [title]="event.title"
+                                [category]="event.category"
+                                [date]="formatDate(event.date)"
+                                [location]="event.venue + ', ' + event.city"
+                                [image]="event.image"
+                                [imagePosition]="event.cardImagePosition || event.imagePosition || 'center center'">
+                            </app-event-card>
+                        }
+                    </div>
+
+                </section>
+            }
+
+        </div>
+
+    </div>
+
+    <app-footer></app-footer>
+</div>

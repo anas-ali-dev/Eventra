@@ -14,10 +14,50 @@ const bookingSchema = new mongoose.Schema(
       required: true,
     },
 
+    bookingRef: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+
+    ticketTierId: {
+      type: String,
+      default: "",
+    },
+
+    ticketTierName: {
+      type: String,
+      default: "General Admission",
+    },
+
+    unitPrice: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+
     tickets: {
       type: Number,
       required: true,
       min: 1,
+    },
+
+    serviceFee: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    promoCode: {
+      type: String,
+      default: "",
+    },
+
+    discount: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
 
     totalPrice: {

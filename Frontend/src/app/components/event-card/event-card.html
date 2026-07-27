@@ -1,0 +1,33 @@
+<a [routerLink]="['/event', id]" class="event-card" [class.squarish]="variant === 'squarish'" [class.square]="variant === 'square'">
+
+    <div class="poster">
+
+        <img
+            [src]="image"
+            [alt]="title"
+            loading="lazy"
+            [style.object-position]="imagePosition">
+
+        <span class="category-badge">{{ category }}</span>
+
+        <div class="poster-glow"></div>
+
+    </div>
+
+    <div class="info">
+
+        <h3 class="title">{{ title }}</h3>
+
+        <p class="meta">
+            <i class="bi bi-calendar-event"></i>
+            <span>{{ date }}</span>
+        </p>
+
+        <p class="meta">
+            <i class="bi bi-geo-alt"></i>
+            <span>{{ location }}</span>
+        </p>
+
+    </div>
+
+</a>

@@ -83,6 +83,10 @@ export const getEvents = async (req, res) => {
       filter.category = req.query.category;
     }
 
+    if (req.query.categoryName) {
+      filter.categoryName = req.query.categoryName;
+    }
+
     if (req.query.organizer) {
       filter.organizer = req.query.organizer;
     }
@@ -91,9 +95,22 @@ export const getEvents = async (req, res) => {
       filter.location = req.query.location;
     }
 
+    if (req.query.search) {
+      const q = req.query.search.trim();
+      filter.$or = [
+        { title: { $regex: q, $options: "i" } },
+        { description: { $regex: q, $options: "i" } },
+        { venue: { $regex: q, $options: "i" } },
+        { city: { $regex: q, $options: "i" } },
+        { categoryName: { $regex: q, $options: "i" } },
+      ];
+    }
+
     const events = await Event.find(filter)
       .populate("category")
-      .populate("organizer");
+      .populate("organizer")
+      .populate("venueRef")
+      .sort({ date: 1 });
 
     return res.status(200).json({
       success: true,
@@ -116,9 +133,17 @@ export const getEvents = async (req, res) => {
 
 export const getEventById = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id)
+    let event = await Event.findById(req.params.id)
       .populate("category")
-      .populate("organizer");
+      .populate("organizer")
+      .populate("venueRef");
+
+    if (!event && !Number.isNaN(Number(req.params.id))) {
+      event = await Event.findOne({ legacyId: Number(req.params.id) })
+        .populate("category")
+        .populate("organizer")
+        .populate("venueRef");
+    }
 
     if (!event) {
       return res.status(404).json({

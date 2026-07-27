@@ -1,0 +1,22 @@
+<div class="review-card">
+
+    <div class="review-header">
+
+        <div class="avatar">{{ initial }}</div>
+
+        <div class="reviewer-info">
+            <h5>{{ name }}</h5>
+            <div class="stars">
+                @for (star of stars; track star) {
+                    <i class="bi" [class.bi-star-fill]="star < rating" [class.bi-star]="star >= rating"></i>
+                }
+            </div>
+        </div>
+
+        <span class="review-date">{{ date }}</span>
+
+    </div>
+
+    <p class="review-comment">{{ comment }}</p>
+
+</div>

@@ -1,0 +1,67 @@
+<app-navbar></app-navbar>
+
+<div class="page-shell">
+    <app-page-backdrop></app-page-backdrop>
+
+<div class="register-page page-body">
+
+<div class="register-card">
+
+<h1>Create your Eventra Account</h1>
+
+<p>Discover concerts, sports and exclusive events.</p>
+
+@if (error) {
+    <div class="alert alert-danger py-2">{{ error }}</div>
+}
+
+@if (success) {
+    <div class="alert alert-success py-2">{{ success }}</div>
+}
+
+<form (ngSubmit)="onSubmit()">
+
+<div class="mb-3">
+<input type="text" class="form-control" placeholder="👤 Full Name" [(ngModel)]="name" name="name" required>
+</div>
+
+<div class="mb-3">
+<input type="email" class="form-control" placeholder="📧 Email Address" [(ngModel)]="email" name="email" required>
+</div>
+
+<div class="mb-3">
+<input type="text" class="form-control" placeholder="📱 Phone Number" [(ngModel)]="phone" name="phone">
+</div>
+
+<div class="mb-4">
+<input type="password" class="form-control" placeholder="🔒 Password" [(ngModel)]="password" name="password" required>
+</div>
+
+<button type="submit" class="register-btn" [disabled]="loading">
+{{ loading ? 'Creating...' : 'Create Account' }}
+</button>
+
+</form>
+
+<div class="login-text">
+
+Already have an account?
+
+<a
+
+routerLink="/login"
+
+class="register-link">
+
+Login
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+    <app-footer></app-footer>
+</div>

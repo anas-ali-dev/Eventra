@@ -1,0 +1,255 @@
+<section class="hero-wrapper">
+
+
+
+    <div class="hero-glow-ring"></div>
+
+
+
+    <div class="hero-carousel" [class.has-bottom-bar]="activeSlide?.heroLayout === 'bottom'">
+
+
+
+        @for (slide of slides; track slide.id; let i = $index) {
+
+            <div
+
+                class="hero-slide"
+
+                [class.active]="i === activeIndex"
+
+                [style.background-image]="'url(' + slide.banner + ')'"
+
+                [style.background-position]="slide.bannerPosition || 'center center'"
+
+                [style.background-size]="slide.bannerSize || 'cover'">
+
+            </div>
+
+        }
+
+
+
+        <div
+
+            class="hero-overlay"
+
+            [class.overlay-left]="activeSlide?.heroCardAlign === 'left' && activeSlide?.heroLayout !== 'bottom' && !activeSlide?.heroCardCompact"
+
+            [class.overlay-minimal-left]="activeSlide?.heroCardCompact && activeSlide?.heroCardAlign === 'left'"
+
+            [class.overlay-minimal-right]="activeSlide?.heroCardCompact && activeSlide?.heroCardAlign === 'right'"
+
+            [class.overlay-bottom]="activeSlide?.heroLayout === 'bottom'">
+
+        </div>
+
+
+
+        <button class="nav-btn prev" (click)="prevSlide()" aria-label="Previous slide">
+
+            <i class="bi bi-chevron-left"></i>
+
+        </button>
+
+
+
+        <button class="nav-btn next" (click)="nextSlide()" aria-label="Next slide">
+
+            <i class="bi bi-chevron-right"></i>
+
+        </button>
+
+
+
+        @if (activeSlide) {
+
+            @if (activeSlide.heroLayout === 'bottom') {
+
+                <div class="hero-content layout-bottom">
+
+                    <div class="hero-bar">
+
+                        <div class="hero-bar-info">
+
+                            <div class="bar-top">
+
+                                <span class="badge">
+
+                                    <i class="bi bi-fire"></i>
+
+                                    TRENDING
+
+                                </span>
+
+                                <span class="rating-chip">
+
+                                    <i class="bi bi-star-fill"></i>
+
+                                    {{ activeSlide.rating }}
+
+                                </span>
+
+                            </div>
+
+                            <h1>{{ activeSlide.title }}</h1>
+
+                            <div class="bar-meta">
+
+                                <span>
+
+                                    <i class="bi bi-geo-alt-fill"></i>
+
+                                    {{ activeSlide.venue }}, {{ activeSlide.city }}
+
+                                </span>
+
+                                <span>
+
+                                    <i class="bi bi-calendar-event"></i>
+
+                                    {{ formatDate(activeSlide.date) }} • {{ activeSlide.time }}
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <a
+
+                            class="book-btn"
+
+                            [routerLink]="['/event', activeSlide.id]">
+
+                            <i class="bi bi-ticket-perforated"></i>
+
+                            Book Tickets
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            } @else {
+
+                <div
+
+                    class="hero-content"
+
+                    [class.align-left]="activeSlide.heroCardAlign === 'left'"
+
+                    [class.align-right]="activeSlide.heroCardAlign === 'right'">
+
+
+
+                    <div class="hero-card" [class.compact]="activeSlide.heroCardCompact">
+
+
+
+                        <div class="card-top">
+
+                            <span class="badge">
+
+                                <i class="bi bi-fire"></i>
+
+                                TRENDING
+
+                            </span>
+
+                            <span class="rating-chip">
+
+                                <i class="bi bi-star-fill"></i>
+
+                                {{ activeSlide.rating }}
+
+                            </span>
+
+                        </div>
+
+
+
+                        <h1>{{ activeSlide.title }}</h1>
+
+
+
+                        <p class="location">
+
+                            <i class="bi bi-geo-alt-fill"></i>
+
+                            {{ activeSlide.venue }}, {{ activeSlide.city }}
+
+                        </p>
+
+
+
+                        <p class="date">
+
+                            <i class="bi bi-calendar-event"></i>
+
+                            {{ formatDate(activeSlide.date) }} • {{ activeSlide.time }}
+
+                        </p>
+
+
+
+                        <div class="card-actions">
+
+                            <a
+
+                                class="book-btn"
+
+                                [routerLink]="['/event', activeSlide.id]">
+
+                                <i class="bi bi-ticket-perforated"></i>
+
+                                Book Tickets
+
+                            </a>
+
+                        </div>
+
+
+
+                    </div>
+
+
+
+                </div>
+
+            }
+
+        }
+
+
+
+        <div class="hero-dots">
+
+            @for (slide of slides; track slide.id; let i = $index) {
+
+                <button
+
+                    class="dot"
+
+                    [class.active]="i === activeIndex"
+
+                    (click)="goToSlide(i)"
+
+                    [attr.aria-label]="'Go to slide ' + (i + 1)">
+
+                </button>
+
+            }
+
+        </div>
+
+
+
+    </div>
+
+
+
+</section>
+
+

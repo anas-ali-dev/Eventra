@@ -1,0 +1,190 @@
+<app-navbar></app-navbar>
+
+<div class="page-shell">
+    <app-page-backdrop></app-page-backdrop>
+
+@if (event) {
+
+<div class="details-page page-body">
+
+    <div class="details-wrap">
+
+        <a routerLink="/events" class="back-chip">
+            <i class="bi bi-arrow-left"></i>
+            Back to events
+        </a>
+
+        <!-- Banner hero -->
+        <section class="event-hero">
+            <div
+                class="banner-bg"
+                [style.background-image]="'url(' + event.banner + ')'"
+                [style.background-position]="event.bannerPosition || 'center center'"
+                [style.background-size]="event.bannerSize || 'cover'">
+            </div>
+            <div class="banner-shine"></div>
+            <div class="banner-overlay"></div>
+            <div class="banner-glow-ring"></div>
+        </section>
+
+        <!-- Floating info + book card -->
+        <div class="hero-float-card">
+            <div class="poster-thumb">
+                <img
+                    [src]="event.image"
+                    [alt]="event.title"
+                    [style.object-position]="event.imagePosition || 'center center'">
+                <span class="live-pulse"></span>
+            </div>
+
+            <div class="hero-info">
+                <div class="hero-tags">
+                    <span class="category-badge">{{ event.category }}</span>
+                    <span class="rating-pill">
+                        <i class="bi bi-star-fill"></i>
+                        {{ event.rating }}
+                    </span>
+                    <button
+                        type="button"
+                        class="save-btn"
+                        [class.saved]="isSaved"
+                        [disabled]="saveLoading"
+                        (click)="toggleSave()">
+                        <i class="bi" [class.bi-bookmark-fill]="isSaved" [class.bi-bookmark]="!isSaved"></i>
+                        {{ isSaved ? 'Saved' : 'Save Event' }}
+                    </button>
+                </div>
+                <h1 class="title">{{ event.title }}</h1>
+                <div class="meta-chips">
+                    <span class="chip">
+                        <i class="bi bi-calendar-event"></i>
+                        {{ formatDate(event.date) }}
+                    </span>
+                    <span class="chip">
+                        <i class="bi bi-clock"></i>
+                        {{ event.time }}
+                    </span>
+                    <span class="chip">
+                        <i class="bi bi-geo-alt"></i>
+                        {{ event.venue }}, {{ event.city }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="hero-booking">
+                <div class="price-block">
+                    <span class="from-label">From</span>
+                    <span class="price">{{ event.price }} <small>EGP</small></span>
+                    <span class="tickets-left">
+                        <i class="bi bi-ticket-perforated"></i>
+                        {{ event.availableTickets }} left
+                    </span>
+                </div>
+                <button type="button" class="book-btn" (click)="goToBooking()">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                    Book Tickets
+                </button>
+            </div>
+        </div>
+
+        <!-- Body content -->
+        <div class="details-body">
+
+            <section class="about-panel">
+                <div class="panel-accent"></div>
+                <h2><i class="bi bi-info-circle"></i> About this event</h2>
+                <p class="description">{{ event.description }}</p>
+            </section>
+
+            <aside class="quick-stats">
+                <div class="stat-card">
+                    <i class="bi bi-calendar-check"></i>
+                    <div>
+                        <strong>Date</strong>
+                        <span>{{ formatDate(event.date) }}</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="bi bi-pin-map"></i>
+                    <div>
+                        <strong>Venue</strong>
+                        <span>{{ event.venue }}</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="bi bi-people"></i>
+                    <div>
+                        <strong>Capacity</strong>
+                        <span>{{ event.availableTickets }} tickets</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="bi bi-star"></i>
+                    <div>
+                        <strong>Rating</strong>
+                        <span>{{ event.rating }} / 5</span>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+
+        <div class="map-placeholder">
+            <i class="bi bi-map"></i>
+            <span>Map view for {{ event.venue }} coming soon</span>
+        </div>
+
+        <div class="reviews-section">
+            <div class="section-header">
+                <h2>Reviews</h2>
+                <div class="rating-summary">
+                    <i class="bi bi-star-fill"></i>
+                    <span>{{ averageRating }}/5</span>
+                </div>
+            </div>
+            @for (review of reviews; track review.name) {
+                <app-review-card
+                    [name]="review.name"
+                    [rating]="review.rating"
+                    [comment]="review.comment"
+                    [date]="review.date">
+                </app-review-card>
+            }
+        </div>
+
+        @if (relatedEvents.length > 0) {
+            <div class="related-section">
+                <h2>You might also like</h2>
+                <div class="related-grid">
+                    @for (related of relatedEvents; track related.id) {
+                        <app-event-card
+                            variant="squarish"
+                            [id]="related.id"
+                            [title]="related.title"
+                            [category]="related.category"
+                            [date]="formatDate(related.date)"
+                            [location]="related.venue + ', ' + related.city"
+                            [image]="related.image"
+                            [imagePosition]="related.cardImagePosition || related.imagePosition || 'center center'">
+                        </app-event-card>
+                    }
+                </div>
+            </div>
+        }
+
+    </div>
+
+</div>
+
+} @else {
+
+<div class="not-found-box page-body">
+    <i class="bi bi-emoji-frown"></i>
+    <h2>Event not found</h2>
+    <a routerLink="/events" class="back-link">Back to Events</a>
+</div>
+
+}
+
+    <app-footer></app-footer>
+</div>

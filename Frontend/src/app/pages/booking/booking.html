@@ -1,0 +1,173 @@
+<app-navbar></app-navbar>
+
+<div class="page-shell">
+    <app-page-backdrop></app-page-backdrop>
+
+<div class="booking-page page-body">
+
+    <div class="container">
+
+        @if (pageLoading) {
+            <div class="empty-box">
+                <h2>Loading event...</h2>
+            </div>
+        } @else if (event && !confirmed) {
+
+            <h1 class="page-title">Confirm Your Booking</h1>
+
+            <div class="booking-grid">
+
+                <div class="event-summary">
+
+                    <img [src]="event.image" [alt]="event.title" class="poster">
+
+                    <div class="summary-info">
+
+                        <span class="category-badge">{{ event.category }}</span>
+
+                        <h2>{{ event.title }}</h2>
+
+                        <p class="meta">
+                            <i class="bi bi-calendar-event"></i>
+                            {{ event.date }} &middot; {{ event.time }}
+                        </p>
+
+                        <p class="meta">
+                            <i class="bi bi-geo-alt"></i>
+                            {{ event.venue }}, {{ event.city }}
+                        </p>
+
+                        <div class="tier-section">
+                            <span class="label">Ticket Type</span>
+                            <div class="tier-list">
+                                @for (tier of ticketTiers; track tier.slug) {
+                                    <button
+                                        type="button"
+                                        class="tier-option"
+                                        [class.active]="selectedTier?.slug === tier.slug"
+                                        (click)="selectTier(tier)">
+                                        <span class="tier-name">{{ tier.name }}</span>
+                                        <span class="tier-price">{{ tier.price }} EGP</span>
+                                        <span class="tier-avail">{{ tier.availableTickets }} left</span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="quantity-row">
+                            <span class="label">Tickets</span>
+
+                            <div class="quantity-control">
+                                <button (click)="decreaseQuantity()" [disabled]="quantity <= 1">
+                                    <i class="bi bi-dash"></i>
+                                </button>
+                                <span>{{ quantity }}</span>
+                                <button (click)="increaseQuantity()" [disabled]="quantity >= maxQuantity">
+                                    <i class="bi bi-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="summary-box">
+
+                    <h3>Order Summary</h3>
+
+                    <div class="promo-row">
+                        <input
+                            type="text"
+                            placeholder="Promo code"
+                            [(ngModel)]="promoCode"
+                            [disabled]="!!appliedPromo">
+
+                        @if (!appliedPromo) {
+                            <button class="apply-btn" (click)="applyPromoCode()">Apply</button>
+                        } @else {
+                            <button class="apply-btn remove" (click)="removePromo()">Remove</button>
+                        }
+                    </div>
+
+                    @if (promoError) {
+                        <p class="promo-error">{{ promoError }}</p>
+                    }
+
+                    @if (appliedPromo) {
+                        <p class="promo-success">
+                            <i class="bi bi-check-circle-fill"></i>
+                            "{{ appliedPromo }}" applied
+                        </p>
+                    }
+
+                    <div class="line-row">
+                        <span>Subtotal ({{ quantity }} ticket{{ quantity > 1 ? 's' : '' }})</span>
+                        <span>{{ subtotal }} EGP</span>
+                    </div>
+
+                    <div class="line-row">
+                        <span>Service Fee</span>
+                        <span>{{ serviceFee }} EGP</span>
+                    </div>
+
+                    @if (appliedPromo) {
+                        <div class="line-row discount">
+                            <span>Discount</span>
+                            <span>- {{ discountAmount }} EGP</span>
+                        </div>
+                    }
+
+                    <div class="total-row">
+                        <span>Total</span>
+                        <span>{{ total }} EGP</span>
+                    </div>
+
+                    @if (bookingError) {
+                        <p class="promo-error">{{ bookingError }}</p>
+                    }
+
+                    <button class="confirm-btn" (click)="confirmBooking()" [disabled]="loading || maxQuantity < 1">
+                        {{ loading ? 'Processing...' : 'Confirm Booking' }}
+                    </button>
+
+                </div>
+
+            </div>
+
+        } @else if (confirmed) {
+
+            <div class="success-box">
+
+                <i class="bi bi-check-circle-fill"></i>
+
+                <h2>Booking Confirmed!</h2>
+
+                <p>Your reference number is</p>
+
+                <div class="ref-code">{{ bookingRef }}</div>
+
+                <p class="success-sub">A confirmation has been sent to your email.</p>
+
+                <div class="success-actions">
+                    <a routerLink="/my-bookings" class="primary-btn">View My Bookings</a>
+                    <a routerLink="/events" class="secondary-btn">Browse More Events</a>
+                </div>
+
+            </div>
+
+        } @else {
+
+            <div class="empty-box">
+                <h2>No event selected</h2>
+                <a routerLink="/events" class="primary-btn">Browse Events</a>
+            </div>
+
+        }
+
+    </div>
+
+</div>
+
+    <app-footer></app-footer>
+</div>

@@ -1,0 +1,111 @@
+<app-navbar></app-navbar>
+
+<div class="page-shell">
+    <app-page-backdrop></app-page-backdrop>
+
+    <section class="events-page page-body">
+
+        <div class="container">
+
+            <div class="page-header">
+                <h1>Explore Events</h1>
+                <p>Find concerts, sports, festivals and more happening near you.</p>
+            </div>
+
+            <div class="search-wrap">
+                <i class="bi bi-search"></i>
+                <input
+                    type="text"
+                    placeholder="Search by event, venue or city..."
+                    [(ngModel)]="searchTerm"
+                    (ngModelChange)="onFiltersChanged()">
+            </div>
+
+            <div class="filter-row categories-row">
+                @for (category of categories; track category) {
+                    <button
+                        class="chip"
+                        [class.active]="activeCategory === category"
+                        (click)="setCategory(category)">
+                        {{ category }}
+                    </button>
+                }
+            </div>
+
+            <div class="filter-row selects-row">
+
+                <div class="select-wrap">
+                    <i class="bi bi-calendar3"></i>
+                    <select [(ngModel)]="dateFilter" (ngModelChange)="onFiltersChanged()">
+                        <option value="all">Any date</option>
+                        <option value="week">Next 7 days</option>
+                        <option value="month">Next 30 days</option>
+                        <option value="upcoming">Upcoming</option>
+                    </select>
+                </div>
+
+                <div class="select-wrap">
+                    <i class="bi bi-cash-coin"></i>
+                    <select [(ngModel)]="priceFilter" (ngModelChange)="onFiltersChanged()">
+                        <option value="all">Any price</option>
+                        <option value="under500">Under 500 EGP</option>
+                        <option value="500to1000">500 - 1000 EGP</option>
+                        <option value="over1000">Over 1000 EGP</option>
+                    </select>
+                </div>
+
+                @if (searchTerm || activeCategory !== 'All' || dateFilter !== 'all' || priceFilter !== 'all') {
+                    <button class="clear-btn" (click)="clearFilters()">
+                        <i class="bi bi-x-circle"></i>
+                        Clear filters
+                    </button>
+                }
+
+            </div>
+
+            <div class="results-count">
+                {{ filteredEvents.length }} event{{ filteredEvents.length === 1 ? '' : 's' }} found
+            </div>
+
+            @if (visibleEvents.length > 0) {
+
+                <div class="events-grid">
+                    @for (event of visibleEvents; track event.id) {
+                        <app-event-card
+                            variant="square"
+                            [id]="event.id"
+                            [title]="event.title"
+                            [category]="event.category"
+                            [date]="formatDate(event.date)"
+                            [location]="event.venue + ', ' + event.city"
+                            [image]="event.image"
+                            [imagePosition]="event.imagePosition || 'center center'">
+                        </app-event-card>
+                    }
+                </div>
+
+                @if (hasMore) {
+                    <div class="load-more-wrap">
+                        <button class="load-more-btn" (click)="loadMore()">
+                            Load More
+                        </button>
+                    </div>
+                }
+
+            } @else {
+
+                <div class="empty-state">
+                    <i class="bi bi-search"></i>
+                    <h3>No events match your filters</h3>
+                    <p>Try adjusting your search or clearing filters.</p>
+                    <button class="clear-btn" (click)="clearFilters()">Clear filters</button>
+                </div>
+
+            }
+
+        </div>
+
+    </section>
+
+    <app-footer></app-footer>
+</div>

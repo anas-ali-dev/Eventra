@@ -6,10 +6,20 @@ dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 
-// Connect Database
-connectDB();
+const start = async () => {
+  if (!process.env.MONGO_URI) {
+    console.error("MONGO_URI is missing. Copy Backend/.env.example to Backend/.env and set your MongoDB connection string.");
+    process.exit(1);
+  }
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  await connectDB();
+
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+};
+
+start().catch((error) => {
+  console.error("Failed to start server:", error.message);
+  process.exit(1);
 });

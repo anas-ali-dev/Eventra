@@ -1,0 +1,50 @@
+<div class="booking-card" [class.cancelled]="status === 'cancelled'">
+
+    <img [src]="image" [alt]="title" class="thumb">
+
+    <div class="details">
+
+        <div class="top-row">
+            <h4>{{ title }}</h4>
+
+            <span
+                class="status-badge"
+                [class.upcoming]="status === 'upcoming'"
+                [class.past]="status === 'past'"
+                [class.cancelled]="status === 'cancelled'">
+                {{ status }}
+            </span>
+        </div>
+
+        <p class="meta">
+            <i class="bi bi-calendar-event"></i>
+            {{ date }} &middot; {{ time }}
+        </p>
+
+        <p class="meta">
+            <i class="bi bi-geo-alt"></i>
+            {{ venue }}
+        </p>
+
+        <p class="meta">
+            <i class="bi bi-ticket-perforated"></i>
+            {{ quantity }} ticket{{ quantity > 1 ? 's' : '' }} &middot; {{ price * quantity }} EGP
+        </p>
+
+        <p class="ref">Ref: {{ bookingRef }}</p>
+
+    </div>
+
+    @if (status === 'upcoming') {
+        <button class="cancel-btn" (click)="onCancel()">
+            Cancel Booking
+        </button>
+    }
+
+    @if (status === 'cancelled') {
+        <button class="remove-btn" (click)="onRemove()">
+            Remove
+        </button>
+    }
+
+</div>

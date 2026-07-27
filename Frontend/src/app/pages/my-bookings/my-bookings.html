@@ -1,0 +1,66 @@
+<app-navbar></app-navbar>
+
+<div class="page-shell">
+    <app-page-backdrop></app-page-backdrop>
+
+<div class="bookings-page page-body">
+
+    <div class="container">
+
+        <h1 class="page-title">My Bookings</h1>
+
+        <div class="tabs">
+            <button class="tab" [class.active]="activeTab === 'all'" (click)="setTab('all')">
+                All
+            </button>
+            <button class="tab" [class.active]="activeTab === 'upcoming'" (click)="setTab('upcoming')">
+                Upcoming
+            </button>
+            <button class="tab" [class.active]="activeTab === 'past'" (click)="setTab('past')">
+                Past
+            </button>
+            <button class="tab" [class.active]="activeTab === 'cancelled'" (click)="setTab('cancelled')">
+                Cancelled
+            </button>
+        </div>
+
+        @if (loading && filteredBookings.length === 0) {
+            <div class="loading-state">
+                <p>Loading your bookings...</p>
+            </div>
+        } @else if (filteredBookings.length > 0) {
+
+            <div class="bookings-list">
+                @for (booking of filteredBookings; track booking.bookingRef) {
+                    <app-booking-card
+                        [title]="booking.eventTitle"
+                        [image]="booking.image"
+                        [date]="formatDate(booking.date)"
+                        [time]="booking.time"
+                        [venue]="booking.venue"
+                        [price]="booking.price"
+                        [quantity]="booking.quantity"
+                        [bookingRef]="booking.bookingRef"
+                        [status]="booking.status"
+                        (cancel)="cancelBooking(booking.bookingRef)"
+                        (remove)="removeBooking(booking.bookingRef)">
+                    </app-booking-card>
+                }
+            </div>
+
+        } @else {
+
+            <div class="empty-state">
+                <i class="bi bi-ticket-perforated"></i>
+                <h3>No bookings here</h3>
+                <p>Book an event and it will appear in this tab instantly.</p>
+            </div>
+
+        }
+
+    </div>
+
+</div>
+
+    <app-footer></app-footer>
+</div>

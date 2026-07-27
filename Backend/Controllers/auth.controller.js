@@ -9,6 +9,7 @@ import {
   sendVerificationEmail,
   sendResetPasswordEmail,
 } from "../Services/email.service.js";
+import { sanitizeUser } from "../Utils/helpers.js";
 
 // ==============================
 // Register
@@ -32,22 +33,28 @@ export const register = async (req, res) => {
 
     const { rawToken, hashedToken } = generateRandomToken();
 
+    const autoVerify = process.env.AUTO_VERIFY_EMAIL !== "false";
+
     const user = await User.create({
       name,
       email,
       password,
       phone,
       role: finalRole,
-      emailVerificationToken: hashedToken,
-      emailVerificationExpires: Date.now() + 24 * 60 * 60 * 1000,
+      isVerified: autoVerify,
+      emailVerificationToken: autoVerify ? undefined : hashedToken,
+      emailVerificationExpires: autoVerify ? undefined : Date.now() + 24 * 60 * 60 * 1000,
     });
 
-    await sendVerificationEmail(user, rawToken);
+    if (!autoVerify) {
+      await sendVerificationEmail(user, rawToken);
+    }
 
     return res.status(201).json({
       success: true,
-      message:
-        "Registration successful. Please check your email to verify your account.",
+      message: autoVerify
+        ? "Registration successful. You can log in now."
+        : "Registration successful. Please check your email to verify your account.",
     });
   } catch (error) {
     if (error.name === "ValidationError") {
@@ -118,12 +125,7 @@ export const login = async (req, res) => {
       data: {
         accessToken,
         refreshToken,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
+        user: sanitizeUser(user),
       },
     });
   } catch (error) {

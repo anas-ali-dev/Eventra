@@ -1,0 +1,163 @@
+.event-card {
+    display: block;
+    width: 175px;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.poster {
+    position: relative;
+    width: 175px;
+    height: 235px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--ev-gray-dark, #151515);
+    border: 1px solid var(--ev-gray-mid, #2d2d2d);
+    transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+}
+
+.poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .5s ease;
+}
+
+.poster-glow {
+    position: absolute;
+    inset: 0;
+    box-shadow: 0 0 0 rgba(0, 200, 83, 0);
+    transition: box-shadow .35s ease;
+    pointer-events: none;
+    border-radius: 16px;
+}
+
+.category-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .3px;
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(0, 200, 83, 0.5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-radius: 999px;
+    text-transform: uppercase;
+}
+
+.event-card:hover .poster {
+    transform: translateY(-4px);
+    border-color: #00c853;
+}
+
+.event-card:hover .poster img {
+    transform: scale(1.06);
+}
+
+.event-card:hover .poster-glow {
+    box-shadow: 0 12px 30px rgba(0, 200, 83, 0.35);
+}
+
+.info {
+    padding: 8px 2px 0;
+}
+
+.title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: #bbbbbb;
+    margin-bottom: 3px;
+}
+
+.meta i {
+    color: #00c853;
+    font-size: 12px;
+}
+
+@media (max-width: 576px) {
+    .event-card.squarish {
+        width: 155px;
+    }
+
+    .event-card.squarish .poster {
+        width: 155px;
+        height: 172px;
+    }
+
+    .event-card, .poster {
+        width: 160px;
+        height: 220px;
+    }
+
+    .event-card.square, .event-card.square .poster {
+        width: 140px;
+        height: 140px;
+    }
+}
+
+.event-card.squarish {
+    width: 182px;
+}
+
+.event-card.squarish .poster {
+    width: 182px;
+    height: 200px;
+    border-radius: 14px;
+}
+
+.event-card.squarish .info {
+    padding: 8px 2px 0;
+}
+
+.event-card.squarish .title {
+    font-size: 13px;
+}
+
+.event-card.square {
+    width: 168px;
+}
+
+.event-card.square .poster {
+    width: 168px;
+    height: 168px;
+    border-radius: 10px;
+}
+
+.event-card.square .info {
+    padding: 6px 0 0;
+}
+
+.event-card.square .title {
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.event-card.square .meta {
+    font-size: 11px;
+    margin-bottom: 2px;
+}
+
+.event-card.square .category-badge {
+    top: 8px;
+    left: 8px;
+    padding: 3px 8px;
+    font-size: 10px;
+}

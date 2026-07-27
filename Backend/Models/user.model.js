@@ -28,6 +28,30 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
+    city: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
+    favouriteCategory: {
+      type: String,
+      trim: true,
+      default: "Concert",
+    },
+
+    profilePicture: {
+      type: String,
+      default: "",
+    },
+
+    savedEvents: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Event",
+      },
+    ],
+
     role: {
       type: String,
       enum: ["customer", "organizer", "admin"],
@@ -69,7 +93,6 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-// Hash Password Before Saving
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) {
     return;
@@ -79,7 +102,6 @@ userSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Compare entered password with hashed password
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
