@@ -1,0 +1,140 @@
+@import '../login/login.css';
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 120px 20px 60px;
+}
+
+.auth-box {
+    width: 420px;
+    background: #161616;
+    border-radius: 20px;
+    padding: 40px;
+    border: 1px solid #2b2b2b;
+    text-align: center;
+}
+
+.auth-box h2 {
+    color: white;
+    margin-bottom: 12px;
+}
+
+.auth-box .sub {
+    color: #bbbbbb;
+    margin-bottom: 24px;
+}
+
+.success-icon {
+    font-size: 48px;
+    color: #00e676;
+    margin-bottom: 16px;
+}
+
+.error-icon {
+    font-size: 48px;
+    color: #ff5252;
+    margin-bottom: 16px;
+}
+
+.primary-btn {
+    display: inline-block;
+    padding: 14px 28px;
+    background: #00c853;
+    color: #070707;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.secondary-link {
+    color: #00c853;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.verify-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.verify-form .form-control {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #333;
+    background: #0f0f0f;
+    color: #fff;
+}
+
+.code-input {
+    letter-spacing: 6px;
+    font-size: 20px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.feedback {
+    color: #00e676;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.feedback.error-text {
+    color: #ff5252;
+}
+
+.text-btn {
+    border: none;
+    background: transparent;
+    color: #00c853;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 12px;
+    display: block;
+    width: 100%;
+}
+
+.secondary-link {
+    display: inline-block;
+    margin-top: 4px;
+}
+
+.auth-box .bi-envelope-check {
+    font-size: 42px;
+    color: #00e676;
+    margin-bottom: 12px;
+}
+
+.dev-code-box {
+    background: rgba(0, 200, 83, 0.12);
+    border: 1px solid rgba(0, 200, 83, 0.35);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 18px;
+}
+
+.dev-code-box .dev-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #8a968f;
+    margin-bottom: 8px;
+}
+
+.dev-code-box strong {
+    display: block;
+    font-size: 32px;
+    letter-spacing: 8px;
+    color: #00e676;
+}
+
+.sent-note strong {
+    color: #00e676;
+}

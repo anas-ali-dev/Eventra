@@ -150,6 +150,10 @@
                 <p class="success-sub">A confirmation has been sent to your email.</p>
 
                 <div class="success-actions">
+                    <a [routerLink]="['/ticket', bookingRef]" class="primary-btn ticket-btn">
+                        <i class="bi bi-qr-code"></i>
+                        View Ticket
+                    </a>
                     <a routerLink="/my-bookings" class="primary-btn">View My Bookings</a>
                     <a routerLink="/events" class="secondary-btn">Browse More Events</a>
                 </div>

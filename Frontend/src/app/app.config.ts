@@ -14,7 +14,8 @@ export function initApp(
   auth: AuthService
 ) {
   return () => {
-    eventService.init();
+    // Don't block first paint — load API data in the background
+    void eventService.init();
 
     if (auth.isLoggedIn()) {
       bookingService.hydrateFromCache();

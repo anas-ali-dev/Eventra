@@ -194,6 +194,13 @@
   background: rgba(0, 200, 83, 0.12);
 }
 
+.save-feedback {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #00e676;
+}
+
 .title {
   font-size: 1.75rem;
   font-weight: 800;

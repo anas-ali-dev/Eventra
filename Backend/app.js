@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import mongoose from "mongoose";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./Config/swagger.js";
 
@@ -30,6 +31,18 @@ app.get("/", (req, res) => {
   return res.status(200).json({
     success: true,
     message: "Eventra Backend API is Running.",
+  });
+});
+
+app.get("/api/health", (req, res) => {
+  const dbConnected = mongoose.connection.readyState === 1;
+
+  return res.status(dbConnected ? 200 : 503).json({
+    success: dbConnected,
+    message: dbConnected
+      ? "Backend and database are connected."
+      : "Backend is running but the database is not connected.",
+    database: dbConnected ? "connected" : "disconnected",
   });
 });
 

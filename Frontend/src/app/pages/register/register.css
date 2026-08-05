@@ -105,3 +105,21 @@
     color:white;
 
 }
+
+.verify-note {
+    color: #aaa;
+    font-size: 14px;
+    margin-top: 12px;
+    line-height: 1.5;
+}
+
+@media (max-width: 576px) {
+    .register-page {
+        padding: 100px 16px 40px;
+        align-items: flex-start;
+    }
+
+    .register-card {
+        padding: 28px 22px;
+    }
+}

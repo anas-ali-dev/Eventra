@@ -17,6 +17,10 @@
 
 @if (success) {
     <div class="alert alert-success py-2">{{ success }}</div>
+    @if (success.toLowerCase().includes('verify')) {
+        <p class="verify-note">Check your inbox and click the verification link. Check the backend terminal if email is not configured — the link is printed there.</p>
+        <a routerLink="/login" class="register-link">Go to Login after verifying</a>
+    }
 }
 
 <form (ngSubmit)="onSubmit()">

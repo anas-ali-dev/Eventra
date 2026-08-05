@@ -1,0 +1,81 @@
+<app-navbar></app-navbar>
+
+<div class="page-shell">
+    <app-page-backdrop></app-page-backdrop>
+
+    <div class="auth-page page-body">
+        <div class="auth-box">
+            @if (tokenLoading) {
+                <h2>Verifying your email...</h2>
+                <p class="sub">Please wait a moment.</p>
+            } @else if (success) {
+                <i class="bi bi-check-circle-fill success-icon"></i>
+                <h2>Email Verified</h2>
+                <p class="sub">{{ message }}</p>
+                @if (auth.isLoggedIn()) {
+                    <p class="sub">Redirecting you now...</p>
+                } @else {
+                    <a routerLink="/login" class="primary-btn">Go to Login</a>
+                }
+            } @else if (showCodeForm) {
+                <i class="bi bi-envelope-check"></i>
+                <h2>Verify Your Email</h2>
+                @if (emailSent && email) {
+                    <p class="sub sent-note">A 6-digit code was sent to <strong>{{ email }}</strong>. Check your inbox. If it is in Spam, open it and click <strong>Not spam</strong> so future emails arrive faster.</p>
+                } @else {
+                    <p class="sub">Enter the 6-digit code sent to your registered email address.</p>
+                }
+
+                @if (devCode) {
+                    <div class="dev-code-box">
+                        <span class="dev-label">Development code (email not configured)</span>
+                        <strong>{{ devCode }}</strong>
+                    </div>
+                }
+
+                <form class="verify-form" (ngSubmit)="submitCode()">
+                    <input
+                        type="email"
+                        class="form-control"
+                        placeholder="Email address"
+                        [(ngModel)]="email"
+                        name="email"
+                        required>
+
+                    <input
+                        type="text"
+                        class="form-control code-input"
+                        placeholder="6-digit code"
+                        [(ngModel)]="code"
+                        (input)="onCodeInput()"
+                        name="code"
+                        maxlength="6"
+                        inputmode="numeric"
+                        autocomplete="one-time-code"
+                        required>
+
+                    <button type="submit" class="primary-btn" [disabled]="loading">
+                        {{ loading ? 'Verifying...' : 'Verify Email' }}
+                    </button>
+                </form>
+
+                @if (message) {
+                    <p class="feedback" [class.error-text]="!success">{{ message }}</p>
+                }
+
+                <button type="button" class="text-btn" (click)="resendCode()" [disabled]="resendLoading">
+                    {{ resendLoading ? 'Sending...' : 'Resend verification code' }}
+                </button>
+
+                <a routerLink="/login" class="secondary-link">Back to Login</a>
+            } @else {
+                <i class="bi bi-x-circle-fill error-icon"></i>
+                <h2>Verification Failed</h2>
+                <p class="sub">{{ message }}</p>
+                <a routerLink="/login" class="secondary-link">Back to Login</a>
+            }
+        </div>
+    </div>
+
+    <app-footer></app-footer>
+</div>

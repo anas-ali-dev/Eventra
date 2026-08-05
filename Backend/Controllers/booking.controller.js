@@ -1,6 +1,12 @@
 import Booking from "../Models/booking.model.js";
 import Event from "../Models/event.model.js";
-import { generateBookingRef } from "../Utils/helpers.js";
+import User from "../Models/user.model.js";
+import {
+  generateBookingRef,
+  resolveEventQuery,
+  getTicketEntryDetails,
+} from "../Utils/helpers.js";
+import { queueBookingConfirmationEmail } from "../Services/email.service.js";
 
 const SERVICE_FEE_PER_TICKET = 25;
 const VALID_PROMO_CODES = {
@@ -9,15 +15,8 @@ const VALID_PROMO_CODES = {
 };
 
 const resolveEvent = async (eventId) => {
-  if (!eventId) return null;
-
-  let event = await Event.findById(eventId);
-
-  if (!event && !Number.isNaN(Number(eventId))) {
-    event = await Event.findOne({ legacyId: Number(eventId) });
-  }
-
-  return event;
+  const query = resolveEventQuery(Event, eventId);
+  return query ? query.exec() : null;
 };
 
 export const createBooking = async (req, res) => {
@@ -108,6 +107,7 @@ export const createBooking = async (req, res) => {
     if (tier) {
       tier.availableTickets -= qty;
       event.availableTickets = Math.max(0, event.availableTickets - qty);
+      event.markModified("ticketTiers");
 
       if (event.ticketTiers.every((t) => t.availableTickets === 0)) {
         event.status = "Sold Out";
@@ -124,7 +124,23 @@ export const createBooking = async (req, res) => {
       await event.save();
     }
 
-    const populated = await Booking.findById(booking._id).populate("event");
+    const populated = await Booking.findById(booking._id).populate({
+      path: "event",
+      populate: { path: "venueRef" },
+    });
+
+    const clientUrl = process.env.CLIENT_URL || "http://localhost:4200";
+    const ticketLink = `${clientUrl}/ticket/${booking.bookingRef}`;
+
+    void User.findById(req.user.id)
+      .then((user) => {
+        if (user && populated?.event) {
+          queueBookingConfirmationEmail(user, booking, populated.event, ticketLink);
+        }
+      })
+      .catch((emailErr) => {
+        console.error("Booking confirmation email queue failed:", emailErr.message);
+      });
 
     return res.status(201).json({
       success: true,
@@ -257,10 +273,17 @@ export const cancelBooking = async (req, res) => {
       event.availableTickets += booking.tickets;
 
       if (booking.ticketTierId && event.ticketTiers?.length) {
-        const tier = event.ticketTiers.id(booking.ticketTierId);
+        let tier = event.ticketTiers.id(booking.ticketTierId);
+
+        if (!tier && booking.ticketTierName) {
+          tier = event.ticketTiers.find(
+            (t) => t.name.toLowerCase() === booking.ticketTierName.toLowerCase(),
+          );
+        }
 
         if (tier) {
           tier.availableTickets += booking.tickets;
+          event.markModified("ticketTiers");
         }
       }
 
@@ -275,6 +298,144 @@ export const cancelBooking = async (req, res) => {
       success: true,
       message: "Booking cancelled successfully.",
       data: booking,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Server error." });
+  }
+};
+
+const buildEventPayload = (event) => ({
+  legacyId: event?.legacyId,
+  title: event?.title,
+  image: event?.image,
+  banner: event?.banner || event?.image,
+  date: event?.date,
+  time: event?.time,
+  venue: event?.venue,
+  city: event?.city,
+  venueAddress: event?.venueRef?.address || `${event?.venue}, ${event?.city}`,
+});
+
+const buildTicketPasses = (booking, event, holder, entry) => {
+  const eventPayload = buildEventPayload(event);
+  const passes = [];
+
+  for (let index = 1; index <= booking.tickets; index += 1) {
+    passes.push({
+      passCode: `${booking.bookingRef}-${index}`,
+      passNumber: index,
+      passesInBooking: booking.tickets,
+      bookingRef: booking.bookingRef,
+      ticketTierName: booking.ticketTierName,
+      unitPrice: booking.unitPrice,
+      totalPrice: booking.totalPrice,
+      status: booking.status,
+      holderName: holder?.name || "",
+      holderEmail: holder?.email || "",
+      entryGate: entry.gate,
+      section: entry.section,
+      zone: entry.zone,
+      event: eventPayload,
+    });
+  }
+
+  return passes;
+};
+
+export const getBookingTicket = async (req, res) => {
+  try {
+    const booking = await Booking.findOne({
+      bookingRef: req.params.ref,
+      user: req.user.id,
+    }).populate({
+      path: "event",
+      populate: { path: "venueRef" },
+    });
+
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Ticket not found." });
+    }
+
+    const event = booking.event;
+    const entry = getTicketEntryDetails(booking.ticketTierName);
+    const holder = await User.findById(req.user.id);
+    const passes = buildTicketPasses(booking, event, holder, entry);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        bookingRef: booking.bookingRef,
+        tickets: booking.tickets,
+        ticketTierName: booking.ticketTierName,
+        unitPrice: booking.unitPrice,
+        totalPrice: booking.totalPrice,
+        status: booking.status,
+        holderName: holder?.name || "",
+        holderEmail: holder?.email || "",
+        entryGate: entry.gate,
+        section: entry.section,
+        zone: entry.zone,
+        passes,
+        event: buildEventPayload(event),
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Server error." });
+  }
+};
+
+export const getBookingTickets = async (req, res) => {
+  try {
+    const refs = [
+      ...new Set(
+        String(req.query.refs || "")
+          .split(",")
+          .map((ref) => ref.trim())
+          .filter(Boolean),
+      ),
+    ];
+
+    if (!refs.length) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one booking reference is required.",
+      });
+    }
+
+    const bookings = await Booking.find({
+      bookingRef: { $in: refs },
+      user: req.user.id,
+    }).populate({
+      path: "event",
+      populate: { path: "venueRef" },
+    });
+
+    const holder = await User.findById(req.user.id);
+    const passes = [];
+
+    for (const ref of refs) {
+      const booking = bookings.find((item) => item.bookingRef === ref);
+
+      if (!booking) {
+        continue;
+      }
+
+      const entry = getTicketEntryDetails(booking.ticketTierName);
+      passes.push(...buildTicketPasses(booking, booking.event, holder, entry));
+    }
+
+    if (!passes.length) {
+      return res.status(404).json({ success: false, message: "Tickets not found." });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        passes,
+        totalPasses: passes.length,
+      },
     });
   } catch (error) {
     console.error(error);

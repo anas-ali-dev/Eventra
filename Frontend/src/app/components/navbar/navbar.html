@@ -1,77 +1,90 @@
-<nav class="d-flex align-items-center justify-content-between">
+<nav class="eventra-nav">
 
-    <a class="logo" routerLink="/" aria-label="Go to home">
+    <a class="logo" routerLink="/" aria-label="Go to home" (click)="closeMobileMenu()">
 
         Event<span>ra</span>
 
     </a>
 
-    <div class="d-flex align-items-center">
+    <button
+        type="button"
+        class="menu-toggle"
+        (click)="toggleMobileMenu()"
+        [attr.aria-expanded]="mobileMenuOpen"
+        aria-label="Toggle navigation menu">
+        <i class="bi" [class.bi-list]="!mobileMenuOpen" [class.bi-x-lg]="mobileMenuOpen"></i>
+    </button>
 
-        <a class="nav-link" routerLink="/">Home</a>
+    <div class="nav-menu" [class.open]="mobileMenuOpen">
 
-        <a class="nav-link" routerLink="/events">Events</a>
+        <div class="nav-links">
 
-        <a class="nav-link" routerLink="/my-bookings">My Bookings</a>
+            <a class="nav-link" routerLink="/" (click)="closeMobileMenu()">Home</a>
 
-        <a class="nav-link" routerLink="/profile">Profile</a>
+            <a class="nav-link" routerLink="/events" (click)="closeMobileMenu()">Events</a>
 
-    </div>
+            <a class="nav-link" routerLink="/my-bookings" (click)="closeMobileMenu()">My Bookings</a>
 
-    <div class="d-flex align-items-center">
+            <a class="nav-link" routerLink="/profile" (click)="closeMobileMenu()">Profile</a>
 
-        <form class="search-box" (submit)="onSearchSubmit($event)">
+        </div>
 
-            <input
-                type="text"
-                placeholder="Search singer or event..."
-                [(ngModel)]="searchTerm"
-                name="search"
-                (input)="onSearchInput()"
-                (focus)="onSearchInput()"
-                autocomplete="off">
+        <div class="nav-actions">
 
-            <button type="submit" class="search-btn" aria-label="Search">
-                <i class="bi bi-search"></i>
-            </button>
+            <form class="search-box" (submit)="onSearchSubmit($event)">
 
-            @if (showResults) {
-                <ul class="search-dropdown">
-                    @for (result of searchResults; track result.id) {
-                        <li>
-                            <button type="button" class="search-result" (click)="openEvent(result)">
-                                <img [src]="result.image" [alt]="result.title">
-                                <div class="result-info">
-                                    <span class="result-title">{{ result.title }}</span>
-                                    <span class="result-meta">{{ result.category }} · {{ result.city }}</span>
-                                </div>
+                <input
+                    type="text"
+                    placeholder="Search singer or event..."
+                    [(ngModel)]="searchTerm"
+                    name="search"
+                    (input)="onSearchInput()"
+                    (focus)="onSearchInput()"
+                    autocomplete="off">
+
+                <button type="submit" class="search-btn" aria-label="Search">
+                    <i class="bi bi-search"></i>
+                </button>
+
+                @if (showResults) {
+                    <ul class="search-dropdown">
+                        @for (result of searchResults; track result.id) {
+                            <li>
+                                <button type="button" class="search-result" (click)="openEvent(result)">
+                                    <img [src]="result.image" [alt]="result.title">
+                                    <div class="result-info">
+                                        <span class="result-title">{{ result.title }}</span>
+                                        <span class="result-meta">{{ result.category }} · {{ result.city }}</span>
+                                    </div>
+                                </button>
+                            </li>
+                        }
+                        <li class="search-all">
+                            <button type="button" (click)="goToSearchResults()">
+                                See all results for "{{ searchTerm }}"
                             </button>
                         </li>
+                    </ul>
+                }
+
+            </form>
+
+            @if (isLoggedIn) {
+                <a class="profile-link" routerLink="/profile" aria-label="Profile" (click)="closeMobileMenu()">
+                    @if (user?.profilePicture) {
+                        <img [src]="user!.profilePicture!" [alt]="user!.name" class="profile-avatar">
+                    } @else {
+                        <span class="profile-avatar initials">{{ initials }}</span>
                     }
-                    <li class="search-all">
-                        <button type="button" (click)="goToSearchResults()">
-                            See all results for "{{ searchTerm }}"
-                        </button>
-                    </li>
-                </ul>
+                </a>
+
+                <button type="button" class="logout-btn" (click)="logout()">Logout</button>
+            } @else {
+                <button class="login-btn" routerLink="/login" (click)="closeMobileMenu()">Login</button>
+                <button class="register-btn" routerLink="/register" (click)="closeMobileMenu()">Register</button>
             }
 
-        </form>
-
-        @if (isLoggedIn) {
-            <a class="profile-link" routerLink="/profile" aria-label="Profile">
-                @if (user?.profilePicture) {
-                    <img [src]="user!.profilePicture!" [alt]="user!.name" class="profile-avatar">
-                } @else {
-                    <span class="profile-avatar initials">{{ initials }}</span>
-                }
-            </a>
-
-            <button type="button" class="logout-btn" (click)="logout()">Logout</button>
-        } @else {
-            <button class="login-btn" routerLink="/login">Login</button>
-            <button class="register-btn" routerLink="/register">Register</button>
-        }
+        </div>
 
     </div>
 

@@ -463,4 +463,33 @@
     padding: 12px 20px;
     min-width: 100px;
   }
+
+  .stats-strip,
+  .filter-chips,
+  .home-content {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .filter-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 8px;
+  }
+
+  .filter-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-chip {
+    flex-shrink: 0;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
 }

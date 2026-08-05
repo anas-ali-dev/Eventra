@@ -19,6 +19,7 @@ export class NavbarComponent {
   searchTerm = '';
   showResults = false;
   searchResults: EventItem[] = [];
+  mobileMenuOpen = false;
 
   constructor(
     private eventService: EventService,
@@ -67,13 +68,26 @@ export class NavbarComponent {
     if (!term) return;
 
     this.router.navigate(['/events'], { queryParams: { q: term } });
-    this.showResults = false;
+    this.closeMobileMenu();
   }
 
   openEvent(event: EventItem): void {
     this.searchTerm = event.title;
     this.showResults = false;
+    this.closeMobileMenu();
     this.router.navigate(['/event', event.id]);
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+    if (!this.mobileMenuOpen) {
+      this.showResults = false;
+    }
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
+    this.showResults = false;
   }
 
   logout(): void {

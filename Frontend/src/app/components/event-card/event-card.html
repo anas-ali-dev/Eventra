@@ -1,33 +1,49 @@
-<a [routerLink]="['/event', id]" class="event-card" [class.squarish]="variant === 'squarish'" [class.square]="variant === 'square'">
+<div class="event-card-wrap" [class.squarish]="variant === 'squarish'" [class.square]="variant === 'square'">
 
-    <div class="poster">
+    <a [routerLink]="['/event', id]" class="event-card" [class.squarish]="variant === 'squarish'" [class.square]="variant === 'square'">
 
-        <img
-            [src]="image"
-            [alt]="title"
-            loading="lazy"
-            [style.object-position]="imagePosition">
+        <div class="poster">
 
-        <span class="category-badge">{{ category }}</span>
+            <img
+                [src]="image"
+                [alt]="title"
+                loading="lazy"
+                [style.object-position]="imagePosition">
 
-        <div class="poster-glow"></div>
+            <span class="category-badge">{{ category }}</span>
 
-    </div>
+            @if (canSave) {
+                <button
+                    type="button"
+                    class="save-icon-btn"
+                    [class.saved]="isSaved"
+                    [disabled]="saveLoading"
+                    (click)="toggleSave($event)"
+                    [attr.aria-label]="isSaved ? 'Remove from saved' : 'Save event'">
+                    <i class="bi" [class.bi-bookmark-fill]="isSaved" [class.bi-bookmark]="!isSaved"></i>
+                </button>
+            }
 
-    <div class="info">
+            <div class="poster-glow"></div>
 
-        <h3 class="title">{{ title }}</h3>
+        </div>
 
-        <p class="meta">
-            <i class="bi bi-calendar-event"></i>
-            <span>{{ date }}</span>
-        </p>
+        <div class="info">
 
-        <p class="meta">
-            <i class="bi bi-geo-alt"></i>
-            <span>{{ location }}</span>
-        </p>
+            <h3 class="title">{{ title }}</h3>
 
-    </div>
+            <p class="meta">
+                <i class="bi bi-calendar-event"></i>
+                <span>{{ date }}</span>
+            </p>
 
-</a>
+            <p class="meta">
+                <i class="bi bi-geo-alt"></i>
+                <span>{{ location }}</span>
+            </p>
+
+        </div>
+
+    </a>
+
+</div>

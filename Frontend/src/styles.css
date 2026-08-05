@@ -149,3 +149,13 @@ button:hover {
   background: var(--ev-green);
   color: white;
 }
+
+@media (max-width: 768px) {
+  .container-custom {
+    width: 94%;
+  }
+
+  button:hover {
+    transform: none;
+  }
+}

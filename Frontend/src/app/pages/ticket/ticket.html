@@ -1,0 +1,288 @@
+<app-navbar></app-navbar>
+
+
+
+<div class="page-shell">
+
+    <app-page-backdrop></app-page-backdrop>
+
+
+
+    <div class="ticket-page page-body">
+
+        <div class="container">
+
+
+
+            @if (loading) {
+
+                <div class="state-box">
+
+                    <p>Loading your tickets...</p>
+
+                </div>
+
+            } @else if (error) {
+
+                <div class="state-box error">
+
+                    <i class="bi bi-exclamation-triangle"></i>
+
+                    <h2>Ticket unavailable</h2>
+
+                    <p>{{ error }}</p>
+
+                    <a routerLink="/my-bookings" class="back-link">Back to My Bookings</a>
+
+                </div>
+
+            } @else if (passes.length) {
+
+
+
+                <div class="ticket-header">
+
+                    <h1 class="page-title">Digital Tickets</h1>
+
+                    <p class="pass-counter">{{ passes.length }} ticket{{ passes.length > 1 ? 's' : '' }} · scroll to view all</p>
+
+                </div>
+
+
+
+                <div class="ticket-stack">
+
+                    @for (pass of passes; track pass.passCode; let i = $index) {
+
+                        <article class="ticket-shell">
+
+                            <div class="ticket-card" [id]="'ticket-' + pass.passCode">
+
+                                <div class="ticket-index">Ticket {{ i + 1 }} of {{ passes.length }}</div>
+
+
+
+                                <div class="ticket-banner">
+
+                                    <img [src]="pass.event.banner || pass.event.image" [alt]="pass.event.title">
+
+                                    <div class="banner-overlay"></div>
+
+                                    <div class="banner-content">
+
+                                        <span class="brand">EVENTRA</span>
+
+                                        <h2>{{ pass.event.title }}</h2>
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <div class="ticket-body">
+
+                                    <div class="ticket-main">
+
+                                        <div class="info-grid">
+
+                                            <div class="info-block">
+
+                                                <span class="label">Date & Time</span>
+
+                                                <strong>{{ formatDate(pass.event.date) }}</strong>
+
+                                                <span class="sub">{{ pass.event.time }}</span>
+
+                                            </div>
+
+
+
+                                            <div class="info-block">
+
+                                                <span class="label">Venue</span>
+
+                                                <strong>{{ pass.event.venue }}</strong>
+
+                                                <span class="sub">{{ pass.event.venueAddress || pass.event.city }}</span>
+
+                                            </div>
+
+
+
+                                            <div class="info-block highlight">
+
+                                                <span class="label">Ticket Class</span>
+
+                                                <strong>{{ pass.ticketTierName || 'General Admission' }}</strong>
+
+                                                <span class="sub">{{ pass.section }}</span>
+
+                                            </div>
+
+
+
+                                            <div class="info-block highlight">
+
+                                                <span class="label">Entry Gate</span>
+
+                                                <strong>{{ pass.entryGate }}</strong>
+
+                                                <span class="sub">{{ pass.zone }}</span>
+
+                                            </div>
+
+
+
+                                            <div class="info-block">
+
+                                                <span class="label">Holder</span>
+
+                                                <strong>{{ pass.holderName }}</strong>
+
+                                                <span class="sub">{{ pass.holderEmail }}</span>
+
+                                            </div>
+
+
+
+                                            <div class="info-block">
+
+                                                <span class="label">Pass</span>
+
+                                                <strong>{{ pass.passNumber }} of {{ pass.passesInBooking }}</strong>
+
+                                                <span class="sub">{{ pass.unitPrice }} EGP</span>
+
+                                            </div>
+
+                                        </div>
+
+
+
+                                        <div class="ref-row">
+
+                                            <span>Ticket Code</span>
+
+                                            <code>{{ pass.passCode }}</code>
+
+                                        </div>
+
+                                    </div>
+
+
+
+                                    <div class="ticket-stub">
+
+                                        <div class="stub-notch top"></div>
+
+                                        <div class="stub-notch bottom"></div>
+
+
+
+                                        <p class="stub-label">Scan at entry</p>
+
+
+
+                                        @if (qrFor(pass)) {
+
+                                            <img [src]="qrFor(pass)" alt="Ticket QR code" class="qr-code">
+
+                                        }
+
+
+
+                                        <p class="stub-ref">{{ pass.passCode }}</p>
+
+                                        <p class="stub-tier">{{ pass.ticketTierName }}</p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="utility-actions">
+
+                                <button type="button" class="utility-btn" (click)="shareTicket(pass, i)">
+
+                                    <i class="bi bi-share"></i>
+
+                                    Share
+
+                                </button>
+
+                                <button type="button" class="utility-btn" (click)="downloadTicket(pass)">
+
+                                    <i class="bi bi-download"></i>
+
+                                    Download
+
+                                </button>
+
+                                <button type="button" class="utility-btn" (click)="exportTicket(pass)">
+
+                                    <i class="bi bi-box-arrow-up"></i>
+
+                                    Export
+
+                                </button>
+
+                            </div>
+
+                        </article>
+
+                    }
+
+                </div>
+
+
+
+                @if (actionMessage) {
+
+                    <p class="action-message">{{ actionMessage }}</p>
+
+                }
+
+
+
+                <div class="ticket-actions page-actions">
+
+                    <a routerLink="/my-bookings" class="secondary-btn">
+
+                        <i class="bi bi-arrow-left"></i>
+
+                        My Bookings
+
+                    </a>
+
+                    @if (passes[0].event.legacyId) {
+
+                        <a [routerLink]="['/event', passes[0].event.legacyId]" class="primary-btn">
+
+                            View Event
+
+                        </a>
+
+                    }
+
+                </div>
+
+
+
+            }
+
+
+
+        </div>
+
+    </div>
+
+
+
+    <app-footer></app-footer>
+
+</div>
+

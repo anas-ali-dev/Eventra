@@ -36,11 +36,14 @@ interface ApiEvent {
   venueRef?: { name?: string; city?: string; ticketTiers?: TicketTier[] };
 }
 
+const API_TIMEOUT_MS = 4000;
+
 @Injectable({ providedIn: 'root' })
 export class EventService {
 
   private events: EventItem[] = [...MOCK_EVENTS];
   private initialized = false;
+  private refreshInflight = new Map<number, Promise<EventItem | undefined>>();
 
   constructor(private http: HttpClient) {}
 
@@ -50,34 +53,49 @@ export class EventService {
     this.initialized = true;
   }
 
+  /** Instant lookup from memory/mock — use for first paint. */
+  getById(id: number): EventItem | undefined {
+    return this.events.find(event => event.id === id);
+  }
+
+  /** Load latest data for one event from the API. */
+  async refreshEvent(legacyId: number): Promise<EventItem | undefined> {
+    const inflight = this.refreshInflight.get(legacyId);
+    if (inflight) {
+      return inflight;
+    }
+
+    const promise = this.fetchAndMergeEvent(legacyId).finally(() => {
+      this.refreshInflight.delete(legacyId);
+    });
+
+    this.refreshInflight.set(legacyId, promise);
+    return promise;
+  }
+
+  /** Return cached event immediately; refresh in background when possible. */
+  async ensureEventLoaded(legacyId: number): Promise<EventItem | undefined> {
+    const cached = this.getById(legacyId);
+
+    if (cached) {
+      void this.refreshEvent(legacyId);
+      return cached;
+    }
+
+    return this.refreshEvent(legacyId);
+  }
+
   /** Reload one event or all events from the API (updates ticket counts). */
   async refreshFromApi(legacyId?: number): Promise<void> {
+    if (legacyId) {
+      await this.refreshEvent(legacyId);
+      return;
+    }
+
     try {
-      if (legacyId) {
-        const res = await firstValueFrom(
-          this.http.get<ApiResponse<ApiEvent>>(`${environment.apiUrl}/events/${legacyId}`).pipe(
-            timeout(5000),
-            catchError(() => of(null))
-          )
-        );
-
-        if (res?.success && res.data) {
-          const updated = this.mapApiEvent(res.data);
-          const index = this.events.findIndex(e => e.id === updated.id);
-
-          if (index >= 0) {
-            this.events[index] = updated;
-          } else {
-            this.events.push(updated);
-          }
-        }
-
-        return;
-      }
-
       const res = await firstValueFrom(
         this.http.get<ApiResponse<ApiEvent[]>>(`${environment.apiUrl}/events`).pipe(
-          timeout(5000),
+          timeout(API_TIMEOUT_MS),
           catchError(() => of(null))
         )
       );
@@ -92,18 +110,8 @@ export class EventService {
     }
   }
 
-  /** Ensure a single event has mongoId + live ticket data before booking. */
-  async ensureEventLoaded(legacyId: number): Promise<EventItem | undefined> {
-    await this.refreshFromApi(legacyId);
-    return this.getById(legacyId);
-  }
-
   getAll(): EventItem[] {
     return this.events;
-  }
-
-  getById(id: number): EventItem | undefined {
-    return this.events.find(event => event.id === id);
   }
 
   getByCategory(category: string): EventItem[] {
@@ -130,7 +138,7 @@ export class EventService {
   }
 
   getHeroSlides(): EventItem[] {
-    return this.getEventsByIds([6, 1, 2, 5, 11]);
+    return this.getEventsByIds([5, 6, 1, 2, 11]);
   }
 
   getFeaturedConcerts(): EventItem[] {
@@ -184,6 +192,34 @@ export class EventService {
     });
   }
 
+  private async fetchAndMergeEvent(legacyId: number): Promise<EventItem | undefined> {
+    try {
+      const res = await firstValueFrom(
+        this.http.get<ApiResponse<ApiEvent>>(`${environment.apiUrl}/events/${legacyId}`).pipe(
+          timeout(API_TIMEOUT_MS),
+          catchError(() => of(null))
+        )
+      );
+
+      if (res?.success && res.data) {
+        const updated = this.mapApiEvent(res.data);
+        const index = this.events.findIndex(e => e.id === updated.id);
+
+        if (index >= 0) {
+          this.events[index] = updated;
+        } else {
+          this.events.push(updated);
+        }
+
+        return updated;
+      }
+    } catch {
+      // keep cached/mock data
+    }
+
+    return this.getById(legacyId);
+  }
+
   private mapApiEvent(raw: ApiEvent): EventItem {
     const legacyId = raw.legacyId ?? 0;
     const mock = MOCK_EVENTS.find(m => m.id === legacyId);
@@ -198,9 +234,7 @@ export class EventService {
 
     const tiers = raw.ticketTiers?.length
       ? raw.ticketTiers
-      : raw.venueRef?.ticketTiers?.length
-        ? raw.venueRef.ticketTiers
-        : mock?.ticketTiers;
+      : undefined;
 
     return {
       id: legacyId || mock?.id || 0,

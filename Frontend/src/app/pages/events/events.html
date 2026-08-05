@@ -74,6 +74,7 @@
                         <app-event-card
                             variant="square"
                             [id]="event.id"
+                            [mongoId]="event.mongoId || ''"
                             [title]="event.title"
                             [category]="event.category"
                             [date]="formatDate(event.date)"

@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { NavbarComponent } from '../../components/navbar/navbar';
 import { FooterComponent } from '../../components/footer/footer';
@@ -34,12 +35,14 @@ interface Review {
   templateUrl: './event-details.html',
   styleUrl: './event-details.css'
 })
-export class EventDetailsComponent implements OnInit {
+export class EventDetailsComponent implements OnInit, OnDestroy {
 
   event: EventItem | undefined;
   relatedEvents: EventItem[] = [];
   isSaved = false;
   saveLoading = false;
+  saveMessage = '';
+  loading = true;
 
   reviews: Review[] = [
     {
@@ -62,25 +65,26 @@ export class EventDetailsComponent implements OnInit {
     }
   ];
 
+  private routeSub?: Subscription;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private eventService: EventService,
     private userService: UserService,
-    private auth: AuthService
+    private auth: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  async ngOnInit(): Promise<void> {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    const loaded = await this.eventService.ensureEventLoaded(id);
-    this.event = loaded ?? this.eventService.getById(id);
+  ngOnInit(): void {
+    this.routeSub = this.route.paramMap.subscribe(params => {
+      const id = Number(params.get('id'));
+      void this.loadEvent(id);
+    });
+  }
 
-    if (this.event) {
-      this.relatedEvents = this.eventService.getAll()
-        .filter(e => e.category === this.event!.category && e.id !== this.event!.id)
-        .slice(0, 4);
-      this.checkSaved();
-    }
+  ngOnDestroy(): void {
+    this.routeSub?.unsubscribe();
   }
 
   get averageRating(): number {
@@ -111,19 +115,73 @@ export class EventDetailsComponent implements OnInit {
     }
 
     this.saveLoading = true;
+    this.saveMessage = '';
+    const eventRef = this.event.mongoId || this.event.id;
+
     const action = this.isSaved
-      ? this.userService.unsaveEvent(this.event.mongoId || this.event.id)
-      : this.userService.saveEvent(this.event.mongoId || this.event.id);
+      ? this.userService.unsaveEvent(eventRef)
+      : this.userService.saveEvent(eventRef);
 
     action.subscribe({
-      next: () => {
+      next: (res) => {
         this.isSaved = !this.isSaved;
         this.saveLoading = false;
+        this.saveMessage = res.message || (this.isSaved ? 'Event saved!' : 'Removed from saved.');
+        this.cdr.markForCheck();
       },
-      error: () => {
+      error: (err) => {
         this.saveLoading = false;
+        this.saveMessage = err?.error?.message || 'Could not update saved events.';
+        this.cdr.markForCheck();
       }
     });
+  }
+
+  private async loadSavedState(): Promise<void> {
+    if (!this.event || !this.auth.isLoggedIn()) {
+      this.isSaved = false;
+      return;
+    }
+
+    this.isSaved = this.userService.isEventSaved(this.event);
+
+    this.userService.getSavedEvents().subscribe({
+      next: () => {
+        if (this.event) {
+          this.isSaved = this.userService.isEventSaved(this.event);
+          this.cdr.markForCheck();
+        }
+      }
+    });
+  }
+
+  private async loadEvent(id: number): Promise<void> {
+    if (!id) {
+      this.loading = false;
+      this.event = undefined;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    this.loading = true;
+    this.event = this.eventService.getById(id);
+    this.cdr.markForCheck();
+
+    const loaded = await this.eventService.refreshEvent(id);
+    this.event = loaded ?? this.eventService.getById(id);
+    this.loading = false;
+
+    if (this.event) {
+      this.relatedEvents = this.eventService.getAll()
+        .filter(e => e.category === this.event!.category && e.id !== this.event!.id)
+        .slice(0, 4);
+      this.checkSaved();
+      void this.loadSavedState();
+    } else {
+      this.relatedEvents = [];
+    }
+
+    this.cdr.markForCheck();
   }
 
   private checkSaved(): void {

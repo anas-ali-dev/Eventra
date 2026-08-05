@@ -1,7 +1,7 @@
 import User from "../Models/user.model.js";
 import Event from "../Models/event.model.js";
 import Booking from "../Models/booking.model.js";
-import { sanitizeUser } from "../Utils/helpers.js";
+import { sanitizeUser, resolveEventQuery } from "../Utils/helpers.js";
 
 export const getProfile = async (req, res) => {
   try {
@@ -13,7 +13,7 @@ export const getProfile = async (req, res) => {
 
     const bookingsCount = await Booking.countDocuments({
       user: user._id,
-      status: "Booked",
+      status: { $ne: "Cancelled" },
     });
 
     return res.status(200).json({
@@ -21,6 +21,7 @@ export const getProfile = async (req, res) => {
       data: {
         ...sanitizeUser(user),
         bookingsCount,
+        savedEventsCount: user.savedEvents.length,
       },
     });
   } catch (error) {
@@ -100,15 +101,36 @@ export const updateUser = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.user.id);
+    const { currentPassword } = req.body;
+
+    const user = await User.findById(req.user.id).select("+password");
 
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found." });
     }
 
+    if (!currentPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter your password to confirm account deletion.",
+      });
+    }
+
+    const isMatch = await user.comparePassword(currentPassword);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Incorrect password.",
+      });
+    }
+
+    await Booking.deleteMany({ user: user._id });
+    await User.findByIdAndDelete(user._id);
+
     return res.status(200).json({
       success: true,
-      message: "Account deleted successfully.",
+      message: "Account deleted successfully. You can register again with the same email.",
     });
   } catch (error) {
     console.error(error);
@@ -174,12 +196,8 @@ export const getSavedEvents = async (req, res) => {
 export const saveEvent = async (req, res) => {
   try {
     const { eventId } = req.params;
-
-    let event = await Event.findById(eventId);
-
-    if (!event && !Number.isNaN(Number(eventId))) {
-      event = await Event.findOne({ legacyId: Number(eventId) });
-    }
+    const query = resolveEventQuery(Event, eventId);
+    const event = query ? await query : null;
 
     if (!event) {
       return res.status(404).json({ success: false, message: "Event not found." });
@@ -214,12 +232,8 @@ export const saveEvent = async (req, res) => {
 export const unsaveEvent = async (req, res) => {
   try {
     const { eventId } = req.params;
-
-    let event = await Event.findById(eventId);
-
-    if (!event && !Number.isNaN(Number(eventId))) {
-      event = await Event.findOne({ legacyId: Number(eventId) });
-    }
+    const query = resolveEventQuery(Event, eventId);
+    const event = query ? await query : null;
 
     if (!event) {
       return res.status(404).json({ success: false, message: "Event not found." });

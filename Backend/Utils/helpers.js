@@ -34,6 +34,63 @@ export const buildDefaultTicketTiers = (basePrice, totalTickets) => {
 export const generateBookingRef = () =>
   `EVT-${Math.floor(100000 + Math.random() * 900000)}`;
 
+export const normalizeEmail = (email = "") => email.trim().toLowerCase();
+
+export const isMongoObjectId = (value) =>
+  typeof value === "string" && /^[a-fA-F0-9]{24}$/.test(value);
+
+export const resolveEventQuery = (EventModel, eventId, populate = false) => {
+  if (eventId === undefined || eventId === null || eventId === "") {
+    return null;
+  }
+
+  const idStr = String(eventId);
+  let query = null;
+
+  if (isMongoObjectId(idStr)) {
+    query = EventModel.findById(idStr);
+  } else if (!Number.isNaN(Number(idStr))) {
+    query = EventModel.findOne({ legacyId: Number(idStr) });
+  }
+
+  if (!query) {
+    return null;
+  }
+
+  if (populate) {
+    query = query.populate("category").populate("organizer").populate("venueRef");
+  }
+
+  return query;
+};
+
+/** Gate / section details shown on digital tickets. */
+export const getTicketEntryDetails = (ticketTierName = "") => {
+  const name = ticketTierName.toLowerCase();
+
+  if (name.includes("vip")) {
+    return {
+      gate: "VIP Entrance — Gate V",
+      section: "VIP Lounge",
+      zone: "Executive Suite · Priority Access",
+    };
+  }
+
+  if (name.includes("stage")) {
+    return {
+      gate: "Premium Entry — Gate B",
+      section: "Stage View",
+      zone: "Premium Standing Zone",
+    };
+  }
+
+  return {
+    gate: "Main Entrance — Gate A",
+    section: "General Admission",
+    zone: "Main Floor · Standing Area",
+  };
+};
+
 export const sanitizeUser = (user) => ({
   id: user._id.toString(),
   name: user.name,
@@ -43,6 +100,7 @@ export const sanitizeUser = (user) => ({
   favouriteCategory: user.favouriteCategory || "Concert",
   profilePicture: user.profilePicture || "",
   role: user.role,
+  isVerified: !!user.isVerified,
   savedEvents: (user.savedEvents || []).map((event) =>
     event?._id ? event._id.toString() : String(event),
   ),

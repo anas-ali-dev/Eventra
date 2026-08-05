@@ -295,6 +295,81 @@
     font-size: 16px;
 }
 
+.security-link {
+    width: 100%;
+    border: none;
+    font-family: inherit;
+    text-align: left;
+}
+
+.security-card {
+    margin-bottom: 32px;
+}
+
+.security-card h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.password-error {
+    color: #ff8a80;
+    margin-bottom: 16px;
+}
+
+.danger-link {
+    color: #ff8a80;
+}
+
+.danger-link:hover {
+    border-color: #ff5252;
+    color: #ffffff;
+}
+
+.danger-link i {
+    color: #ff5252;
+}
+
+.danger-card {
+    margin-bottom: 32px;
+    border-color: #3d2020;
+    background: #1a1212;
+}
+
+.danger-card h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ff8a80;
+}
+
+.danger-note {
+    color: #bbbbbb;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.delete-btn {
+    background: #d32f2f;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s ease;
+}
+
+.delete-btn:hover:not(:disabled) {
+    background: #b71c1c;
+}
+
+.delete-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .saved-section h2 {
     font-size: 22px;
     color: #ffffff;

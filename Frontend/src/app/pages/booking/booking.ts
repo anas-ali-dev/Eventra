@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -50,10 +50,11 @@ export class BookingComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private eventService: EventService,
-    private bookingService: BookingService
+    private bookingService: BookingService,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     const idParam = this.route.snapshot.queryParamMap.get('eventId');
     const id = Number(idParam);
 
@@ -62,10 +63,19 @@ export class BookingComponent implements OnInit {
       return;
     }
 
-    const loaded = await this.eventService.ensureEventLoaded(id);
-    this.event = loaded ?? this.eventService.getById(id);
-    this.setupTiers();
-    this.pageLoading = false;
+    this.event = this.eventService.getById(id);
+    if (this.event) {
+      this.setupTiers();
+      this.pageLoading = false;
+      this.cdr.detectChanges();
+    }
+
+    void this.eventService.refreshEvent(id).then(loaded => {
+      this.event = loaded ?? this.eventService.getById(id);
+      this.setupTiers();
+      this.pageLoading = false;
+      this.cdr.detectChanges();
+    });
   }
 
   get maxQuantity(): number {
@@ -155,17 +165,20 @@ export class BookingComponent implements OnInit {
       this.bookingRef = booking.bookingRef;
       this.confirmed = true;
 
-      const refreshed = await this.eventService.ensureEventLoaded(this.event.id);
-      if (refreshed) {
-        this.event = refreshed;
-        this.setupTiers();
-      }
+      void this.eventService.refreshEvent(this.event.id).then(refreshed => {
+        if (refreshed) {
+          this.event = refreshed;
+          this.setupTiers();
+          this.cdr.detectChanges();
+        }
+      });
     } catch (err) {
       this.bookingError = err instanceof Error
         ? err.message
         : 'Booking failed. Please try again.';
     } finally {
       this.loading = false;
+      this.cdr.detectChanges();
     }
   }
 

@@ -7,8 +7,10 @@ export interface User {
   favouriteCategory?: string;
   profilePicture?: string;
   role: 'customer' | 'organizer' | 'admin';
+  isVerified?: boolean;
   savedEvents?: string[];
   bookingsCount?: number;
+  savedEventsCount?: number;
 }
 
 export interface AuthResponse {
@@ -42,4 +44,17 @@ export interface ProfileUpdatePayload {
   city?: string;
   favouriteCategory?: string;
   profilePicture?: string;
+}
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface ResetPasswordPayload {
+  newPassword: string;
 }

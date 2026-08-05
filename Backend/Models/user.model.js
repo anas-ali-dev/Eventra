@@ -78,6 +78,11 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
 
+    emailVerificationCode: {
+      type: String,
+      select: false,
+    },
+
     resetPasswordToken: {
       type: String,
       select: false,

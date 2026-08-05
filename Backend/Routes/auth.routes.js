@@ -6,6 +6,8 @@ import {
   refreshToken,
   logout,
   verifyEmail,
+  verifyEmailCode,
+  resendVerification,
   forgotPassword,
   resetPassword,
 } from "../Controllers/auth.controller.js";
@@ -20,6 +22,8 @@ router.post("/logout", logout);
 
 // Email Verification
 router.get("/verify-email/:token", verifyEmail);
+router.post("/verify-email-code", verifyEmailCode);
+router.post("/resend-verification", resendVerification);
 
 // Password Reset
 router.post("/forgot-password", forgotPassword);

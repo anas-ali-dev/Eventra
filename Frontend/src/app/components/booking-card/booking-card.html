@@ -26,25 +26,46 @@
             {{ venue }}
         </p>
 
-        <p class="meta">
+        <p class="meta ticket-summary">
             <i class="bi bi-ticket-perforated"></i>
-            {{ quantity }} ticket{{ quantity > 1 ? 's' : '' }} &middot; {{ price * quantity }} EGP
+            {{ quantity }} ticket{{ quantity > 1 ? 's' : '' }} &middot; {{ displayTotal }} EGP total
         </p>
 
-        <p class="ref">Ref: {{ bookingRef }}</p>
+        <div class="tier-stack">
+            @for (tier of tierLines; track tier.bookingRef) {
+                <p class="meta tier-line">
+                    <i class="bi bi-layers"></i>
+                    {{ tier.ticketTierName }} &middot; {{ tier.quantity }} &middot; {{ tier.total }} EGP
+                </p>
+            }
+        </div>
+
+        <p class="ref">{{ refLabel }}</p>
 
     </div>
 
-    @if (status === 'upcoming') {
-        <button class="cancel-btn" (click)="onCancel()">
-            Cancel Booking
-        </button>
-    }
+    <div class="card-actions">
+        @if (canViewTicket) {
+            <a
+                class="view-btn"
+                [routerLink]="['/ticket', viewTicketRef]"
+                [queryParams]="viewTicketQueryParams">
+                <i class="bi bi-qr-code"></i>
+                View Ticket
+            </a>
+        }
 
-    @if (status === 'cancelled') {
-        <button class="remove-btn" (click)="onRemove()">
-            Remove
-        </button>
-    }
+        @if (status === 'upcoming') {
+            <button class="cancel-btn" (click)="onCancel()">
+                Cancel Booking
+            </button>
+        }
+
+        @if (status === 'cancelled') {
+            <button class="remove-btn" (click)="onRemove()">
+                Remove
+            </button>
+        }
+    </div>
 
 </div>

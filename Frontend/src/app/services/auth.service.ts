@@ -48,11 +48,15 @@ export class AuthService {
       this.http.post(`${environment.apiUrl}/auth/logout`, { refreshToken }).subscribe();
     }
 
+    this.clearSession();
+    this.router.navigate(['/login']);
+  }
+
+  clearSession(): void {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_KEY);
     localStorage.removeItem(USER_KEY);
     this.currentUser.set(null);
-    this.router.navigate(['/login']);
   }
 
   refreshProfile(): Observable<ApiResponse<User>> {
@@ -63,6 +67,43 @@ export class AuthService {
         }
       })
     );
+  }
+
+  verifyEmail(token: string): Observable<ApiResponse<AuthResponse>> {
+    return this.http.get<ApiResponse<AuthResponse>>(`${environment.apiUrl}/auth/verify-email/${token}`).pipe(
+      tap(res => {
+        if (res.success && res.data?.accessToken) {
+          this.setSession(res.data);
+        }
+      })
+    );
+  }
+
+  verifyEmailCode(email: string, code: string): Observable<ApiResponse<AuthResponse>> {
+    return this.http.post<ApiResponse<AuthResponse>>(`${environment.apiUrl}/auth/verify-email-code`, {
+      email: email.trim().toLowerCase(),
+      code: code.replace(/\D/g, '')
+    }).pipe(
+      tap(res => {
+        if (res.success && res.data?.accessToken) {
+          this.setSession(res.data);
+        }
+      })
+    );
+  }
+
+  resendVerification(email: string): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(`${environment.apiUrl}/auth/resend-verification`, { email });
+  }
+
+  forgotPassword(email: string): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(`${environment.apiUrl}/auth/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<ApiResponse> {
+    return this.http.put<ApiResponse>(`${environment.apiUrl}/auth/reset-password/${token}`, {
+      newPassword
+    });
   }
 
   isLoggedIn(): boolean {

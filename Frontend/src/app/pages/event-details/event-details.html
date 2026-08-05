@@ -3,7 +3,13 @@
 <div class="page-shell">
     <app-page-backdrop></app-page-backdrop>
 
-@if (event) {
+@if (loading && !event) {
+
+<div class="not-found-box page-body loading-box">
+    <p>Loading event...</p>
+</div>
+
+} @else if (event) {
 
 <div class="details-page page-body">
 
@@ -53,6 +59,9 @@
                         <i class="bi" [class.bi-bookmark-fill]="isSaved" [class.bi-bookmark]="!isSaved"></i>
                         {{ isSaved ? 'Saved' : 'Save Event' }}
                     </button>
+                    @if (saveMessage) {
+                        <span class="save-feedback">{{ saveMessage }}</span>
+                    }
                 </div>
                 <h1 class="title">{{ event.title }}</h1>
                 <div class="meta-chips">
@@ -160,6 +169,7 @@
                         <app-event-card
                             variant="squarish"
                             [id]="related.id"
+                            [mongoId]="related.mongoId || ''"
                             [title]="related.title"
                             [category]="related.category"
                             [date]="formatDate(related.date)"

@@ -48,6 +48,7 @@
                         <app-event-card
                             variant="squarish"
                             [id]="event.id"
+                            [mongoId]="event.mongoId || ''"
                             [title]="event.title"
                             [category]="event.category"
                             [date]="formatDate(event.date)"
@@ -97,6 +98,7 @@
                             <app-event-card
                                 variant="squarish"
                                 [id]="event.id"
+                                [mongoId]="event.mongoId || ''"
                                 [title]="event.title"
                                 [category]="event.category"
                                 [date]="formatDate(event.date)"

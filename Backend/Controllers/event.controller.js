@@ -1,6 +1,7 @@
 import Event from "../Models/event.model.js";
 import Category from "../Models/category.model.js";
 import User from "../Models/user.model.js";
+import { resolveEventQuery } from "../Utils/helpers.js";
 
 // ==============================
 // Create Event
@@ -133,17 +134,8 @@ export const getEvents = async (req, res) => {
 
 export const getEventById = async (req, res) => {
   try {
-    let event = await Event.findById(req.params.id)
-      .populate("category")
-      .populate("organizer")
-      .populate("venueRef");
-
-    if (!event && !Number.isNaN(Number(req.params.id))) {
-      event = await Event.findOne({ legacyId: Number(req.params.id) })
-        .populate("category")
-        .populate("organizer")
-        .populate("venueRef");
-    }
+    const query = resolveEventQuery(Event, req.params.id, true);
+    const event = query ? await query : null;
 
     if (!event) {
       return res.status(404).json({
@@ -158,13 +150,6 @@ export const getEventById = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-
-    if (error.name === "CastError") {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid event ID.",
-      });
-    }
 
     return res.status(500).json({
       success: false,

@@ -69,10 +69,30 @@ export class UserService {
     const user = this.auth.currentUser();
     if (!user?.savedEvents?.length) return false;
 
-    const mongoId = event.mongoId;
-    return user.savedEvents.some(id =>
-      id === mongoId || id === String(event.id)
-    );
+    const mongoId = event.mongoId ? String(event.mongoId) : '';
+    const legacyId = String(event.id);
+
+    return user.savedEvents.some((id: string) => {
+      const normalized = String(id);
+      return (mongoId && normalized === mongoId) || normalized === legacyId;
+    });
+  }
+
+  getSavedCount(): number {
+    return this.auth.currentUser()?.savedEvents?.length ?? 0;
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<ApiResponse> {
+    return this.http.put<ApiResponse>(`${environment.apiUrl}/users/change-password`, {
+      currentPassword,
+      newPassword
+    });
+  }
+
+  deleteAccount(currentPassword: string): Observable<ApiResponse> {
+    return this.http.delete<ApiResponse>(`${environment.apiUrl}/users/me`, {
+      body: { currentPassword }
+    });
   }
 
 }

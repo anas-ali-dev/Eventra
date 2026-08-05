@@ -24,14 +24,14 @@
             </button>
         </div>
 
-        @if (loading && filteredBookings.length === 0) {
+        @if (loading && bookings.length === 0) {
             <div class="loading-state">
                 <p>Loading your bookings...</p>
             </div>
-        } @else if (filteredBookings.length > 0) {
+        } @else if (bookings.length > 0) {
 
             <div class="bookings-list">
-                @for (booking of filteredBookings; track booking.bookingRef) {
+                @for (booking of bookings; track booking.eventId + '-' + booking.status + '-' + booking.bookingRefs.join('-')) {
                     <app-booking-card
                         [title]="booking.eventTitle"
                         [image]="booking.image"
@@ -40,9 +40,14 @@
                         [venue]="booking.venue"
                         [price]="booking.price"
                         [quantity]="booking.quantity"
+                        [total]="booking.total"
                         [bookingRef]="booking.bookingRef"
+                        [bookingRefs]="booking.bookingRefs"
+                        [bookingIds]="booking.bookingIds"
+                        [tiers]="booking.tiers"
+                        [ticketTierName]="booking.ticketTierName || ''"
                         [status]="booking.status"
-                        (cancel)="cancelBooking(booking.bookingRef)"
+                        (cancel)="cancelBooking(booking)"
                         (remove)="removeBooking(booking.bookingRef)">
                     </app-booking-card>
                 }

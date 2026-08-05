@@ -381,3 +381,51 @@
         height: 220px;
     }
 }
+
+@media (max-width: 576px) {
+    .booking-page {
+        padding: 100px 0 50px;
+    }
+
+    .booking-page .container {
+        width: 94%;
+        max-width: none;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .page-title {
+        font-size: 22px;
+        margin-bottom: 18px;
+    }
+
+    .event-summary {
+        padding: 16px;
+    }
+
+    .tier-option {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+
+    .tier-avail {
+        font-size: 10px;
+    }
+
+    .summary-box {
+        padding: 18px;
+    }
+
+    .promo-row {
+        flex-direction: column;
+    }
+
+    .apply-btn {
+        width: 100%;
+    }
+
+    .success-box {
+        margin: 30px auto;
+        padding: 36px 20px;
+    }
+}
